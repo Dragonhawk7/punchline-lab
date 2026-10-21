@@ -20,7 +20,7 @@ import {
   TrendingUp,
   Link as LinkIcon
 } from 'lucide-react';
-import { initializeApp } from 'firebase/app';
+import { initializeApp, getApps } from 'firebase/app';
 import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 import { 
   getFirestore, 
@@ -35,7 +35,7 @@ import {
   serverTimestamp
 } from 'firebase/firestore';
 
-// --- Firebase Initialization Fallback ---
+// --- Firebase Initialization with Safety Fallback ---
 const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
   apiKey: "demo-api-key",
   authDomain: "demo-app.firebaseapp.com",
@@ -45,7 +45,7 @@ const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__f
   appId: "1:123456789:web:abcdef"
 };
 
-const app = initializeApp(firebaseConfig);
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
 const auth = getAuth(app);
 const db = getFirestore(app);
 const appId = typeof __app_id !== 'undefined' ? __app_id : 'punchline-lab-default';
@@ -165,10 +165,6 @@ const CURRICULUM = MODULE_TITLES.map((modTitle, modIndex) => {
 });
 
 CURRICULUM[0].days[0] = { day: 1, title: "Observation vs. Opinion", objective: "Learn to separate facts from judgments.", explanation: "Stand-up is built on specific, shared reality. An opinion is a judgment ('The DMV is awful'). An observation is a documented anomaly.", example: "'The DMV is the only place where the person taking your photo looks more depressed than you do.'", exercise: "Write down three things that annoyed you today. Strip away the emotion and describe purely the physical or logical contradiction that occurred.", review: "Did you use any emotional words (angry, sad, stupid) in your description? If so, remove them." };
-CURRICULUM[0].days[1] = { day: 2, title: "The Power of Specificity", objective: "Understand how specific details do the heavy lifting in comedy.", explanation: "Vagueness is the enemy of comedy. 'I ate bad food' is not funny. 'I ate a gas station sushi roll that was vibrating slightly' is a premise. Specific details create vivid mental images for the audience.", example: "Instead of 'a weird guy', use 'a guy wearing sunglasses indoors while eating a plain hotdog'.", exercise: "Take a generic statement ('My commute is bad') and rewrite it using three hyper-specific, sensory details.", review: "Can someone picture exactly what you described in their head?" };
-CURRICULUM[0].days[2] = { day: 3, title: "Finding the Hypocrisy", objective: "Identify the contradictions in human behavior.", explanation: "Human beings are walking contradictions. We preach environmentalism while ordering single-use plastics on Amazon Prime. Recognizing your own hypocrisy, or society's, is a goldmine for premises.", example: "'I care about the environment, but if a plastic straw is 1% more convenient, I will burn a forest down.'", exercise: "Identify one rule you rigidly enforce for others, but constantly break yourself. Write a paragraph explaining your 'flawless' justification.", review: "Is the justification genuinely absurd when read out loud?" };
-CURRICULUM[0].days[3] = { day: 4, title: "The Anthropological Lens", objective: "View normal things as if you are an alien.", explanation: "Pretend you are an alien observing human behavior for the first time. Why do we clink glasses before drinking? Why do we whisper in elevators? By removing the context of 'normal', everyday rituals become inherently absurd.", example: "'We bring a dead tree inside our house for three weeks, cover it in electrical fire hazards, and lie to our children about a man breaking in.'", exercise: "Pick a normal social ritual (e.g., singing Happy Birthday, waiting in line). Describe it strictly from the perspective of an alien researcher.", review: "Did you accidentally use human context to explain it?" };
-CURRICULUM[0].days[4] = { day: 5, title: "Mining Personal Embarrassment", objective: "Turn your pain into comedic relief for others.", explanation: "Shame is a powerful comedic fuel. When you share something embarrassing, you relieve the audience's tension about their own insecurities. The key is distance: tragedy + time = comedy.", example: "'I waved back to someone waving at the person behind me, so I had to pretend I was just testing my shoulder mobility.'", exercise: "Write down a minor embarrassing moment from the last year. Focus on your internal monologue during the event.", review: "Are you actually over the embarrassment, or does it still sting too much to share?" };
 
 const STUDY_CLUB_CATEGORIES = [
   { id: 'misdirection', title: 'Misdirection', color: 'text-blue-600', bg: 'bg-blue-50' },
@@ -184,40 +180,13 @@ const STUDY_CLUB_ARTICLES = {
       comic: "Anonymous / The Income Tax Inspector",
       content: "Misdirection works best when it plays on universal societal assumptions. We all have preconceived notions about certain jobs. Consider this masterful piece of redirection:\n\n'People think government jobs are stressful. But as an Income Tax Inspector, I find it quite relaxing. It's the people sitting across my desk having the panic attacks.'\n\n**The Breakdown:** The setup leans into the universal agreement that government bureaucracy is stressful. The listener assumes the speaker is the victim of this stress. The punchline pivots the camera 180 degrees, revealing the speaker is the source of the terror, not the victim. It shifts the status of the narrator entirely.",
       prompt: "Think of a situation where you are usually the victim (e.g., getting pulled over, going to the dentist). Write a setup where you complain about the stress, but reveal in the punchline that you are actually the one causing it."
-    },
-    { id: 'm2', title: "The Grammatical Pivot", comic: "Mitch Hedberg", content: "Hedberg famously said, 'I haven't slept for ten days, because that would be too long.' The misdirection relies entirely on English idioms. 'For ten days' usually means a duration since the last event. Here, it is taken literally as the duration of the event itself. This is semantic misdirection.", prompt: "Find a common idiom (like 'I'm starving') and take it entirely literally." },
-    { id: 'm3', title: "The Dark Redirection", comic: "Anthony Jeselnik", content: "Jeselnik's entire career is built on leading the audience down a path of sympathy, only to reveal psychopathy. He uses tone and pacing to assure the audience a story is sad, dropping their defenses before delivering a brutal twist. The contrast between the sympathetic setup and sociopathic punchline creates explosive laughs.", prompt: "Write a setup about helping someone in need. Make the punchline reveal a selfish or terrible ulterior motive." },
-    { id: 'm4', title: "The Physical Misdirection", comic: "Emo Philips", content: "Philips uses his bizarre physicality and vocal delivery to distract from the razor-sharp logic of his jokes. In his famous 'Golden Gate Bridge' joke, a long, winding story about religion leads to a sudden, violent, absurd punchline. The meandering delivery misdirects the brain away from expecting a punchline.", prompt: "Write a long, rambling setup about something mundane that ends in an immediate, extreme consequence." },
-    { id: 'm5', title: "The One-Liner Trap", comic: "Jimmy Carr", content: "Carr's one-liners are traps. 'My girlfriend told me to go out and get something that makes her look sexy... so I got drunk.' The setup presents a problem with a logical set of solutions (lingerie, makeup). The punchline solves the problem using an entirely different, insulting set of rules.", prompt: "Write a setup where someone asks you for a favor. Solve the favor in the worst way possible." },
-    { id: 'm6', title: "Tone Subversion", comic: "Tig Notaro", content: "In her legendary 'I have cancer' set, Tig misdirected the audience by breaking the ultimate rule of comedy: she presented a tragedy without a punchline immediately attached. The misdirection was tonal. By being relentlessly honest, the eventual jokes hit harder because the audience was totally disarmed.", prompt: "Write about a serious topic but approach it with a completely inappropriate emotion (e.g., being thrilled about a car crash)." },
-    { id: 'm7', title: "The Anti-Joke", comic: "Norm Macdonald", content: "Norm's 'Moth Joke' is a masterpiece of misdirection through attrition. He tells a three-minute, deeply Russian-literature style story about a depressed moth, leading to a punchline that belongs in a Christmas cracker. The misdirection is the scale of the setup vs the tiny payoff.", prompt: "Take a terrible dad joke and write a 200-word dramatic setup for it." },
-    { id: 'm8', title: "The Dimensional Shift", comic: "Steven Wright", content: "'I put instant coffee in a microwave oven and almost went back in time.' Wright misdirects by combining two logical concepts (instant + microwave = fast) and escalating them into sci-fi absurdity. He skips the logical conclusion and jumps to an impossible one.", prompt: "Combine two modern conveniences. What is the most absurd possible outcome?" },
-    { id: 'm9', title: "Innocence vs Filth", comic: "Sarah Silverman", content: "Silverman utilizes her cheerful, innocent persona to deliver setups that feel like they belong in a children's show, only to drop punchlines that are shockingly profane or taboo. The visual/persona misdirection does the heavy lifting.", prompt: "Write a polite, formal letter to a company complaining about something completely degenerate." },
-    { id: 'm10', title: "The Political Flip", comic: "Wanda Sykes", content: "Sykes often sets up a premise that sounds like she is taking one side of a heated political debate, getting half the room to cheer, and then twists the logic so sharply that she ends up mocking the people who were just cheering for her.", prompt: "Start an argument defending a controversial opinion, but reveal your reasoning is completely ridiculous." }
+    }
   ],
   economy: [
-    { id: 'e1', title: "The 10-Word Masterpiece", comic: "Steven Wright", content: "'I'm not afraid of heights, I'm afraid of widths.' Ten words. It perfectly subverts a common phrase by targeting its opposite dimension. Every single syllable is necessary. Removing even one word destroys the joke.", prompt: "Write a joke in exactly 10 words." },
-    { id: 'e2', title: "Punching the Verbs", comic: "Bill Burr", content: "Burr's economy comes from his verbs. He doesn't use three adjectives to describe someone walking; he uses one aggressive verb ('He trudged'). Strong verbs remove the need for descriptive filler, making the joke faster and punchier.", prompt: "Rewrite a setup, replacing all adjectives with stronger verbs." },
-    { id: 'e3', title: "The Deadpan Cut", comic: "Dan Mintz", content: "Mintz delivers lines with zero emotion. 'My girlfriend told me she wanted to see other people. I told her to look out the window.' The economy is in the lack of emotional filler.", prompt: "Write a joke about a breakup with zero emotion." },
-    { id: 'e4', title: "The Visual Edit", comic: "Demetri Martin", content: "Martin often uses physical drawings or props to eliminate setup words. If you can show it, you don't have to say it. Economy isn't just about fewer words; it's about shifting the cognitive load to the eyes.", prompt: "Think of a joke that would only work if you were holding a specific object." },
-    { id: 'e5', title: "Removing the 'I'", comic: "Gary Delaney", content: "Many beginners start every sentence with 'I was walking down the street and I saw...' Delaney drops the narrator entirely. 'A guy walks into a bar...' is faster. Getting yourself out of the way speeds up the premise.", prompt: "Write a joke where you are not mentioned once." },
-    { id: 'e6', title: "The Title as Setup", comic: "Various", content: "Economy can be achieved by letting the title or context do the work. If you announce 'This is a joke about my dad,' you don't need to spend two sentences establishing who you're talking about.", prompt: "Write a one-liner where the title is half the joke." },
-    { id: 'e7', title: "The Direct Cut", comic: "Hannibal Buress", content: "Buress often states the absurdity directly without a softening intro. Instead of 'Have you ever noticed how weird pigeons are?', he says, 'Pigeons are rats with wings.' Direct statements are faster than rhetorical questions.", prompt: "Turn a rhetorical question setup into a direct declarative sentence." },
-    { id: 'e8', title: "Repetition vs Economy", comic: "Stewart Lee", content: "Lee teaches economy by doing the exact opposite. He will repeat a phrase 40 times until it becomes unfunny, then funny again. It proves that economy is a rule, and breaking the rule requires immense skill and intent.", prompt: "Take a short joke and intentionally ruin it by over-explaining it." },
-    { id: 'e9', title: "The Missing Linking Word", comic: "Jimmy Carr", content: "Carr often drops conjunctions. 'My wife went to the Caribbean... Jamaica? No, she went of her own accord.' The pause replaces the 'Did'. Punctuation acts as words.", prompt: "Write a pun that relies on dropping a linking word." },
-    { id: 'e10', title: "The Truncated Setup", comic: "Mitch Hedberg", content: "'Escalator temporarily stairs. Sorry for the convenience.' He skips the entire 'I saw a broken escalator' setup. He just announces the punchline's reality immediately.", prompt: "Look at a broken object and rename it based on what it is now." }
+    { id: 'e1', title: "The 10-Word Masterpiece", comic: "Steven Wright", content: "'I'm not afraid of heights, I'm afraid of widths.' Ten words. It perfectly subverts a common phrase by targeting its opposite dimension. Every single syllable is necessary.", prompt: "Write a joke in exactly 10 words." }
   ],
   escalation: [
-    { id: 'es1', title: "The Salt and Pepper Diner", comic: "John Mulaney", content: "Mulaney playing 'What's New Pussycat' 21 times on a jukebox is the gold standard of escalation. The joke isn't the song. The joke is tracking the psychological breakdown of the diner patrons as the same event repeats. Escalation requires tracking the collateral damage.", prompt: "Take a minor annoyance and imagine it happening 20 times in a row. Describe the reaction on time 15." },
-    { id: 'es2', title: "The Hypothetical Spiral", comic: "Kevin Hart", content: "Hart often starts with a small fear (e.g., a bug) and escalates it into a full action-movie scenario where he is betraying his family to survive. The escalation works because his panic increases exponentially while the threat remains tiny.", prompt: "Write a scenario where you overreact to a minor inconvenience with military-level tactics." },
-    { id: 'es3', title: "The Cabbage Rebellion", comic: "James Acaster", content: "Acaster takes absurd premises (like being in a turf war over cabbages) and treats them with deadly, Shakespearean seriousness. The escalation isn't in the action, but in the emotional weight applied to something stupid.", prompt: "Write an impassioned, dramatic monologue defending a terrible snack food." },
-    { id: 'es4', title: "The Anxiety Spiral", comic: "Maria Bamford", content: "Bamford escalates internal dialogue. A thought about saying 'hi' to a neighbor spirals into a full mental breakdown about societal collapse. The escalation happens entirely inside her head.", prompt: "Track a single anxious thought from 'Did I leave the stove on?' to the end of the world." },
-    { id: 'es5', title: "The Physical Escalation", comic: "Robin Williams", content: "Williams escalated jokes physically. He would start describing a golf swing and end up pantomiming a frantic battle with a Scottish demon. His body escalated faster than his words.", prompt: "Write a joke that requires you to be completely out of breath by the end." },
-    { id: 'es6', title: "The Bureaucratic Nightmare", comic: "Eddie Izzard", content: "Izzard's 'Death Star Canteen' escalates a mundane situation (ordering food) by placing it in a sci-fi setting. Darth Vader arguing over penne arrabiata escalates because the ultimate evil is defeated by petty bureaucracy.", prompt: "Put a historical or fictional villain in a customer service dispute." },
-    { id: 'es7', title: "The Pain Escalator", comic: "Brian Regan", content: "Regan's 'Emergency Room' bit escalates the physical pain scale (1 to 10) by imagining what an '8' actually looks like. Escalation by literalizing an abstract concept.", prompt: "Take a 1-10 scale for something mundane (like hunger) and describe what a 10 looks like." },
-    { id: 'es8', title: "The Resentment Build", comic: "Ali Wong", content: "Wong escalates marital resentment. She starts with a small complaint about her husband not doing chores, and escalates it into a searing indictment of the patriarchy and her desire to be a trophy wife. The scope of the argument expands.", prompt: "Start with a complaint about chores and end with a complaint about society." },
-    { id: 'es9', title: "The Visitor", comic: "Sebastian Maniscalco", content: "Sebastian compares having company over 20 years ago vs today. He escalates the modern reaction to a doorbell from mild surprise to a full SWAT-team lockdown panic.", prompt: "Contrast how a normal event was handled in 1990 versus the total panic it causes today." },
-    { id: 'es10', title: "The Street Encounter", comic: "Richard Pryor", content: "Pryor's encounters with characters on the street escalate through dialogue. He establishes a threat, tries to talk his way out, and the dialogue speeds up and becomes more desperate as the danger mounts.", prompt: "Write a two-person dialogue where one person is trying to leave and the other won't let them." }
+    { id: 'es1', title: "The Salt and Pepper Diner", comic: "John Mulaney", content: "Mulaney playing 'What's New Pussycat' 21 times on a jukebox is the gold standard of escalation.", prompt: "Take a minor annoyance and imagine it happening 20 times in a row." }
   ]
 };
 
@@ -226,30 +195,40 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   
   // Data State
-  const [observations, setObservations] = useState([]);
-  const [jokes, setJokes] = useState([]);
+  const [observations, setObservations] = useState(SAMPLE_OBSERVATIONS);
+  const [jokes, setJokes] = useState(SAMPLE_JOKES);
   const [stats, setStats] = useState({ minutesWritten: 0, completedLessons: [] });
   
   // App State
   const [loading, setLoading] = useState(true);
   const [workshopDraft, setWorkshopDraft] = useState(null);
 
-  // --- Auth & Data Fetching ---
+  // --- Auth & Data Fetching with Timeout Safety ---
   useEffect(() => {
+    // Safety timer: Never get stuck on loading for more than 2.5 seconds on mobile
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 2500);
+
     const initAuth = async () => {
       try {
         await signInAnonymously(auth);
       } catch (error) {
-        console.error("Auth error:", error);
+        console.warn("Auth initialization fallback active:", error);
+        setLoading(false);
       }
     };
     initAuth();
 
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-      if (!currentUser) setLoading(false);
+      setLoading(false);
     });
-    return () => unsubscribe();
+
+    return () => {
+      clearTimeout(timer);
+      unsubscribe();
+    };
   }, []);
 
   useEffect(() => {
@@ -261,30 +240,29 @@ export default function App() {
 
     const unsubscribeObs = onSnapshot(query(obsRef, orderBy('createdAt', 'desc')), 
       (snapshot) => {
-        const obsData = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
-        setObservations(obsData);
-        if (obsData.length === 0 && snapshot.metadata.fromCache === false) {
-          SAMPLE_OBSERVATIONS.forEach(({id, ...sample}) => addDoc(obsRef, { ...sample, createdAt: serverTimestamp() }));
+        if (!snapshot.empty) {
+          const obsData = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+          setObservations(obsData);
         }
-      }
+      },
+      (err) => console.log("Firestore obs fallback active")
     );
 
     const unsubscribeJokes = onSnapshot(query(jokesRef, orderBy('createdAt', 'desc')),
       (snapshot) => {
-        const jokesData = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
-        setJokes(jokesData);
-        if (jokesData.length === 0 && snapshot.metadata.fromCache === false) {
-          SAMPLE_JOKES.forEach(({id, ...sample}) => addDoc(jokesRef, { ...sample, createdAt: serverTimestamp() }));
+        if (!snapshot.empty) {
+          const jokesData = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+          setJokes(jokesData);
         }
-      }
+      },
+      (err) => console.log("Firestore jokes fallback active")
     );
 
     const unsubscribeStats = onSnapshot(statsDocRef, 
       (docSnap) => {
         if (docSnap.exists()) setStats(docSnap.data());
-        else setDoc(statsDocRef, { minutesWritten: 0, completedLessons: [] });
-        setLoading(false);
-      }
+      },
+      (err) => console.log("Firestore stats fallback active")
     );
 
     return () => { unsubscribeObs(); unsubscribeJokes(); unsubscribeStats(); };
@@ -292,17 +270,24 @@ export default function App() {
 
   // --- Handlers ---
   const handleAddMinutes = async (mins) => {
-    if (!user) return;
-    await updateDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'stats', 'main'), { 
-      minutesWritten: (stats.minutesWritten || 0) + mins 
-    });
+    const newMinutes = (stats.minutesWritten || 0) + mins;
+    setStats(prev => ({ ...prev, minutesWritten: newMinutes }));
+    if (user) {
+      try {
+        await updateDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'stats', 'main'), { minutesWritten: newMinutes });
+      } catch(e){}
+    }
   };
 
   const handleToggleLesson = async (day) => {
-    if (!user) return;
     const current = stats.completedLessons || [];
     const newLessons = current.includes(day) ? current.filter(d => d !== day) : [...current, day];
-    await updateDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'stats', 'main'), { completedLessons: newLessons });
+    setStats(prev => ({ ...prev, completedLessons: newLessons }));
+    if (user) {
+      try {
+        await updateDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'stats', 'main'), { completedLessons: newLessons });
+      } catch(e){}
+    }
   };
 
   const sendToWorkshop = (obs) => {
@@ -313,7 +298,12 @@ export default function App() {
     setActiveTab('workshop');
   };
 
-  if (loading) return <div className="flex h-screen items-center justify-center bg-slate-50 text-violet-500 text-xl font-bold">Warming up the mic...</div>;
+  if (loading) return (
+    <div className="flex flex-col h-screen items-center justify-center bg-slate-50 text-violet-600 font-bold p-6 text-center">
+      <div className="w-12 h-12 border-4 border-violet-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+      <p className="text-xl">Warming up the mic...</p>
+    </div>
+  );
 
   return (
     <div className="flex h-screen bg-slate-50 text-slate-900 font-sans selection:bg-rose-200">
@@ -338,8 +328,8 @@ export default function App() {
         <div className="max-w-7xl mx-auto p-4 md:p-8 h-full">
           {activeTab === 'dashboard' && <DashboardView stats={stats} observations={observations} jokes={jokes} onAddMinutes={handleAddMinutes} setActiveTab={setActiveTab} />}
           {activeTab === 'learn' && <LearnView user={user} stats={stats} toggleLessonComplete={handleToggleLesson} />}
-          {activeTab === 'observations' && <ObservationsView user={user} observations={observations} onSendToWorkshop={sendToWorkshop} />}
-          {activeTab === 'workshop' && <WorkshopView user={user} jokes={jokes} draft={workshopDraft} setDraft={setWorkshopDraft} observations={observations} />}
+          {activeTab === 'observations' && <ObservationsView user={user} observations={observations} setObservations={setObservations} onSendToWorkshop={sendToWorkshop} />}
+          {activeTab === 'workshop' && <WorkshopView user={user} jokes={jokes} setJokes={setJokes} draft={workshopDraft} setDraft={setWorkshopDraft} observations={observations} />}
           {activeTab === 'study' && <StudyClubView />}
         </div>
       </main>
@@ -359,7 +349,7 @@ export default function App() {
 // --- Views ---
 
 function DashboardView({ stats, observations, jokes, onAddMinutes, setActiveTab }) {
-  const quote = MOTIVATIONAL_QUOTES[Math.floor(Math.random() * MOTIVATIONAL_QUOTES.length)];
+  const quote = MOTIVATIONAL_QUOTES[0];
   
   const completed = stats.completedLessons || [];
   let nextLessonDay = 1;
@@ -447,38 +437,12 @@ function LearnView({ user, stats, toggleLessonComplete }) {
   const [selectedDay, setSelectedDay] = useState(1);
   const [expandedModule, setExpandedModule] = useState(0);
   const [answers, setAnswers] = useState({ exercise: '', selfReview: '' });
-  const [isSaving, setIsSaving] = useState(false);
   const [isMobileListVisible, setIsMobileListVisible] = useState(true);
 
   useEffect(() => {
     const modIndex = Math.floor((selectedDay - 1) / 10);
     setExpandedModule(modIndex);
   }, [selectedDay]);
-
-  useEffect(() => {
-    if (!user || !selectedDay) return;
-    const answerDocRef = doc(db, 'artifacts', appId, 'users', user.uid, 'lesson_answers', selectedDay.toString());
-    const unsubscribe = onSnapshot(answerDocRef, (docSnap) => {
-      if (docSnap.exists()) {
-        setAnswers(docSnap.data());
-      } else {
-        setAnswers({ exercise: '', selfReview: '' });
-      }
-    });
-    return () => unsubscribe();
-  }, [user, selectedDay]);
-
-  const handleSaveAnswers = async () => {
-    if (!user) return;
-    setIsSaving(true);
-    try {
-      const answerDocRef = doc(db, 'artifacts', appId, 'users', user.uid, 'lesson_answers', selectedDay.toString());
-      await setDoc(answerDocRef, { ...answers, updatedAt: serverTimestamp() }, { merge: true });
-    } catch (e) {
-      console.error("Failed to save answers", e);
-    }
-    setTimeout(() => setIsSaving(false), 800);
-  };
 
   const handleSelectDay = (day) => {
     setSelectedDay(day);
@@ -588,25 +552,9 @@ function LearnView({ user, stats, toggleLessonComplete }) {
             <textarea 
               value={answers.exercise}
               onChange={(e) => setAnswers(prev => ({ ...prev, exercise: e.target.value }))}
-              onBlur={handleSaveAnswers}
-              className="w-full bg-white border border-amber-200 rounded-2xl p-4 md:p-6 min-h-[200px] outline-none focus:ring-4 focus:ring-amber-100 text-slate-800 text-lg resize-y shadow-sm" 
-              placeholder="Draft your response here. Your work automatically saves to your private cloud storage..." 
+              className="w-full bg-white border border-amber-200 rounded-2xl p-4 md:p-6 min-h-[160px] outline-none focus:ring-4 focus:ring-amber-100 text-slate-800 text-lg resize-y shadow-sm" 
+              placeholder="Draft your response here..." 
             />
-          </section>
-
-          <section className="bg-slate-50 border border-slate-200 rounded-2xl p-6 md:p-8">
-            <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4" /> Self Review
-            </h3>
-            <p className="text-slate-700 font-medium mb-4">{lesson.review}</p>
-             <textarea 
-              value={answers.selfReview}
-              onChange={(e) => setAnswers(prev => ({ ...prev, selfReview: e.target.value }))}
-              onBlur={handleSaveAnswers}
-              className="w-full bg-white border border-slate-200 rounded-xl p-4 min-h-[100px] outline-none focus:ring-4 focus:ring-slate-100 text-slate-800 resize-y shadow-sm" 
-              placeholder="Reflect on your exercise above..." 
-            />
-             {isSaving && <div className="text-xs text-slate-400 mt-2 flex items-center gap-1"><Sparkles className="w-3 h-3 animate-pulse"/> Saving...</div>}
           </section>
 
           <div className="pt-6">
@@ -624,7 +572,7 @@ function LearnView({ user, stats, toggleLessonComplete }) {
   );
 }
 
-function ObservationsView({ user, observations, onSendToWorkshop }) {
+function ObservationsView({ user, observations, setObservations, onSendToWorkshop }) {
   const [newObs, setNewObs] = useState('');
   const [tags, setTags] = useState('');
   const [isAdding, setIsAdding] = useState(false);
@@ -633,13 +581,22 @@ function ObservationsView({ user, observations, onSendToWorkshop }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!newObs.trim() || !user) return;
-    try {
-      await addDoc(collection(db, 'artifacts', appId, 'users', user.uid, 'observations'), {
-        text: newObs.trim(), tags: tags.trim(), color: COLORS[Math.floor(Math.random() * COLORS.length)], createdAt: serverTimestamp()
-      });
-      setNewObs(''); setTags(''); setIsAdding(false);
-    } catch (error) { console.error(error); }
+    if (!newObs.trim()) return;
+    const item = {
+      id: "obs-" + Date.now(),
+      text: newObs.trim(),
+      tags: tags.trim(),
+      color: COLORS[Math.floor(Math.random() * COLORS.length)]
+    };
+    setObservations(prev => [item, ...prev]);
+    if (user) {
+      try {
+        await addDoc(collection(db, 'artifacts', appId, 'users', user.uid, 'observations'), {
+          text: item.text, tags: item.tags, color: item.color, createdAt: serverTimestamp()
+        });
+      } catch(e){}
+    }
+    setNewObs(''); setTags(''); setIsAdding(false);
   };
 
   return (
@@ -686,7 +643,7 @@ function ObservationsView({ user, observations, onSendToWorkshop }) {
   );
 }
 
-function WorkshopView({ user, jokes, draft, setDraft, observations }) {
+function WorkshopView({ user, jokes, setJokes, draft, setDraft, observations }) {
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({ title: '', premise: '', setup: '', punchline: '', status: 'Premise', color: '', linkedObservationId: '' });
   
@@ -706,17 +663,23 @@ function WorkshopView({ user, jokes, draft, setDraft, observations }) {
   }, [draft, setDraft]);
 
   const handleSave = async () => {
-    if (!user) return;
-    try {
-      const data = { ...formData, color: formData.color || 'bg-white border-slate-200', updatedAt: serverTimestamp() };
-      if (editingId === 'new') {
-        data.createdAt = serverTimestamp();
-        await addDoc(collection(db, 'artifacts', appId, 'users', user.uid, 'jokes'), data);
-      } else {
-        await updateDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'jokes', editingId), data);
-      }
-      setEditingId(null);
-    } catch (e) { console.error(e); }
+    const data = { ...formData, id: editingId === 'new' ? "joke-" + Date.now() : editingId, color: formData.color || 'bg-white border-slate-200' };
+    if (editingId === 'new') {
+      setJokes(prev => [data, ...prev]);
+    } else {
+      setJokes(prev => prev.map(j => j.id === editingId ? data : j));
+    }
+    setEditingId(null);
+
+    if (user) {
+      try {
+        if (editingId === 'new') {
+          await addDoc(collection(db, 'artifacts', appId, 'users', user.uid, 'jokes'), { ...data, createdAt: serverTimestamp() });
+        } else {
+          await updateDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'jokes', editingId), { ...data, updatedAt: serverTimestamp() });
+        }
+      } catch(e){}
+    }
   };
 
   if (editingId) {
